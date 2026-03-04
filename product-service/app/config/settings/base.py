@@ -2,13 +2,17 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+import environ
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = False
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -78,7 +82,7 @@ REST_FRAMEWORK = {
 
 REST_FRAMEWORK.update({
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication",
     ),
 })
 
@@ -112,13 +116,13 @@ CACHES = {
 
 SIMPLE_JWT = {
     "ALGORITHM": "RS256",
-    "VERIFYING_KEY": os.getenv("AUTH_PUBLIC_KEY"),
+    "VERIFYING_KEY": env("AUTH_PUBLIC_KEY"),
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUDIENCE": None,
-    # "ISSUER": "auth-service",
+    "ISSUER": "auth-service",
 }
 
-print("___-=wewerrwerwer$$$$$$$$$$$$$$$$$$$$$$",os.getenv("AUTH_PUBLIC_KEY"))
+print("___-=wewerrwerwer$$$$$$$$$$$$$$$$$$$$$$",env("AUTH_PUBLIC_KEY"))
 
 
 AUTH_PASSWORD_VALIDATORS = [
