@@ -7,5 +7,5 @@ python-dotenv
 django-filter
 faker
 djangorestframework-simplejwt[crypto]
-cryptography
 django-environ
+coverage
