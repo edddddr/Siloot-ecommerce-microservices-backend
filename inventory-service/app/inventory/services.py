@@ -32,4 +32,27 @@ class InventoryService:
         return reservation
     
 
-    
+    @staticmethod
+    @transaction.atomic
+    def confirm_reservation(reservation_id):
+
+        reservation = StockReservation.objects.select_for_update().get(
+            id=reservation_id
+        )
+
+        if reservation.status != StockReservation.STATUS_PENDING:
+            raise ValueError("Reservation already processed")
+
+        inventory = InventoryItem.objects.select_for_update().get(
+            product_id=reservation.product_id
+        )
+
+        inventory.total_stock = F("total_stock") - reservation.quantity
+        inventory.reserved_stock = F("reserved_stock") - reservation.quantity
+        inventory.save()
+
+        reservation.status = StockReservation.STATUS_CONFIRMED
+        reservation.save()
+
+        return reservation
+        
