@@ -16,6 +16,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from .cache import InventoryCache
 
+from drf_spectacular.utils import extend_schema
+
+
+@extend_schema(
+    summary="Reserve stock for an order",
+    description="Temporarily reserves stock for a product during checkout.",
+)
 class ReserveStockView(APIView):
 
     authentication_classes = [InternalServiceAuthentication]
@@ -40,7 +47,10 @@ class ReserveStockView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
+@extend_schema(
+    summary="Confirm stock reservation",
+    description="Finalizes stock deduction after successful payment."
+)
 class ConfirmReservationView(APIView):
     authentication_classes = [InternalServiceAuthentication]
     permission_classes = [IsAuthenticated]    
@@ -61,6 +71,11 @@ class ConfirmReservationView(APIView):
             }
         )
 
+
+@extend_schema(
+    summary="Release stock reservation",
+    description="Releases reserved stock when payment fails or order is cancelled."
+)
 class ReleaseReservationView(APIView):
     authentication_classes = [InternalServiceAuthentication]
     permission_classes = [IsAuthenticated]    
@@ -82,7 +97,10 @@ class ReleaseReservationView(APIView):
         )
 
 
-
+@extend_schema(
+    summary="Get available stock",
+    description="Returns available stock for a product (cached with Redis)."
+)
 @api_view(["GET"])
 def get_stock(request, product_id):
 
