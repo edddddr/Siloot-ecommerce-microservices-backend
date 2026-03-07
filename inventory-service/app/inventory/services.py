@@ -4,6 +4,8 @@ from django.db.models import F
 
 from .models import InventoryItem, StockReservation
 
+from .cache import InventoryCache
+
 
 class InventoryService:
 
@@ -24,10 +26,13 @@ class InventoryService:
         inventory.save()
 
         reservation = StockReservation.objects.create(
+
             order_id=order_id,
             product_id=product_id,
             quantity=quantity,
         )
+
+        InventoryCache.invalidate_stock(product_id)
 
         return reservation
     
@@ -54,6 +59,8 @@ class InventoryService:
         reservation.status = StockReservation.STATUS_CONFIRMED
         reservation.save()
 
+        InventoryCache.invalidate_stock(reservation.product_id)
+
         return reservation
 
 
@@ -77,6 +84,8 @@ class InventoryService:
 
         reservation.status = StockReservation.STATUS_RELEASED
         reservation.save()
+
+        InventoryCache.invalidate_stock(reservation.product_id)
 
         return reservation
         

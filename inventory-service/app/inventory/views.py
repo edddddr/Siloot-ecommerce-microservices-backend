@@ -13,6 +13,9 @@ from .services import InventoryService
 from .authentication import InternalServiceAuthentication  
 from rest_framework.permissions import IsAuthenticated
 
+from rest_framework.decorators import api_view
+from .cache import InventoryCache
+
 class ReserveStockView(APIView):
 
     authentication_classes = [InternalServiceAuthentication]
@@ -77,3 +80,15 @@ class ReleaseReservationView(APIView):
                 "status": reservation.status
             }
         )
+
+
+
+@api_view(["GET"])
+def get_stock(request, product_id):
+
+    stock = InventoryCache.get_stock(product_id)
+
+    return Response({
+        "product_id": product_id,
+        "available_stock": stock
+    })
