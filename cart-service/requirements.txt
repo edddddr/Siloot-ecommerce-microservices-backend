@@ -1,0 +1,12 @@
+Django==5.0.*
+djangorestframework
+psycopg[binary]
+redis
+django-redis
+python-dotenv
+django-filter
+faker
+djangorestframework-simplejwt[crypto]
+django-environ
+coverage
+drf-spectacular 

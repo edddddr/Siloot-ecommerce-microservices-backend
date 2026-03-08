@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  cart-db:
+    image: postgres:15
+    container_name: cart-db
+    env_file:
+      - .env
+    volumes:
+      - cart_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  cart-redis:
+    image: redis:7
+    container_name: cart-redis
+    ports:
+      - "6381:6379"
+
+  cart-service:
+    build: .
+    container_name: cart-service
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./app:/app
+    ports:
+      - "8002:8000"
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev  
+    depends_on:
+      - cart-db
+      - cart-redis
+
+volumes:
+  cart_db_data:
