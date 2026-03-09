@@ -34,7 +34,6 @@ class AddItemView(APIView):
 
         serializer = AddItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print("\n", "Fucntion", serializer.validated_data["product_id"], "\n")
 
         try:
 

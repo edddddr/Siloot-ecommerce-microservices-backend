@@ -20,7 +20,7 @@ class CartService:
     @transaction.atomic
     def add_item(user_id, product_id, quantity):
 
-        print("\n","Product id : class ", product_id, "\n")
+
 
         cart = CartService.get_or_create_cart(user_id)
 
