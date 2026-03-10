@@ -107,6 +107,10 @@ REST_FRAMEWORK = {
     ),
 }
 
+REST_FRAMEWORK.update({
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+})
+
 
 CACHES = {
     "default": {
@@ -116,6 +120,26 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Cart Service API",
+    "DESCRIPTION": "Shopping cart management service",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+
+    'SERIES_AUTHS': ['BearerAuth'], 
+    'APPEND_COMPONENTS': {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+    # Force the global security requirement
+    'SECURITY': [{'BearerAuth': []}],
 }
 
 AUTH_PASSWORD_VALIDATORS = []

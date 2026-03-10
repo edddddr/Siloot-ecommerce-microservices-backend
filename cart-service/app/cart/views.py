@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from drf_spectacular.utils import extend_schema
 
 
 from .serializers import (
@@ -18,9 +19,23 @@ from cart.cache import CartCache
 
 class CartView(APIView):
 
+    @extend_schema(
+    description="Retrieve the user's cached or database cart.",
+    responses={200: CartSerializer},
+    auth=[{'BearerAuth': []}]
+    )   
     def get(self, request):
 
+       
+
+        # if not request.user or not request.user.is_authenticated:
+        #     return Response(
+        #         {"error": "User not identified. Please provide a valid token."}, 
+        #         status=401
+        # ) 
+        # else:  
         user_id = request.user
+
         
         cached_cart = CartCache.get_cart(user_id)
 
@@ -38,6 +53,12 @@ class CartView(APIView):
 
 
 class AddItemView(APIView):
+
+    @extend_schema(
+    description="Add Item to the cart.",
+    responses={200: AddItemSerializer},
+    auth=[{'BearerAuth': []}]
+    )   
 
     def post(self, request):
         
@@ -71,6 +92,13 @@ class AddItemView(APIView):
 
 class UpdateItemView(APIView):
 
+    @extend_schema(
+    description="Update Item.",
+    responses={200: UpdateItemSerializer},
+    auth=[{'BearerAuth': []}]
+    ) 
+    
+
     def patch(self, request, item_id):
 
         user_id = request.user
@@ -89,7 +117,12 @@ class UpdateItemView(APIView):
 
 
 class RemoveItemView(APIView):
-
+    @extend_schema(
+        summary="Remove item from cart",
+        description="Deletes a specific item from the user's cart using the item ID and invalidates the cache.",
+        responses={204: None},  # Explicitly states there is no response body
+        auth=[{'BearerAuth': []}]
+    )
 
     def delete(self, request, item_id):
 
@@ -102,6 +135,12 @@ class RemoveItemView(APIView):
 
 
 class ClearCartView(APIView):
+    @extend_schema(
+        summary="Clear entire cart",
+        description="Removes all items from the authenticated user's cart and invalidates the cache.",
+        responses={204: None},  # No content returned on success
+        auth=[{'BearerAuth': []}]
+    )
 
     def delete(self, request):
 
