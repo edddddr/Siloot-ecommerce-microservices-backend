@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 from .models import InventoryItem
 
 
@@ -16,7 +17,7 @@ class InventoryCache:
 
         if stock is None:
 
-            inventory = InventoryItem.objects.get(product_id=product_id)
+            inventory = get_object_or_404(InventoryItem, product_id=product_id)
 
             stock = inventory.total_stock - inventory.reserved_stock
 
