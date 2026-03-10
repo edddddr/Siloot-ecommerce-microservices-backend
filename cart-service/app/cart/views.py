@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import CartItem
+
 from .serializers import (
     CartSerializer,
     AddItemSerializer,
@@ -12,16 +12,28 @@ from .serializers import (
 from .services import CartService
 
 
+from cart.cache import CartCache
+
+
+
 class CartView(APIView):
 
     def get(self, request):
 
         user_id = request.user
+        
+        cached_cart = CartCache.get_cart(user_id)
+
+        if cached_cart:
+            return Response(cached_cart)
+
 
         cart = CartService.get_or_create_cart(user_id)
 
         serializer = CartSerializer(cart)
 
+        CartCache.set_cart(user_id, serializer.data)
+  
         return Response(serializer.data)
 
 
@@ -48,6 +60,8 @@ class AddItemView(APIView):
                 {"error": str(e)},
                 status=400
             )
+        
+        CartCache.invalidate_cart(user_id)
 
         return Response(
             {"item_id": item.id},
@@ -59,6 +73,8 @@ class UpdateItemView(APIView):
 
     def patch(self, request, item_id):
 
+        user_id = request.user
+
         serializer = UpdateItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -67,14 +83,20 @@ class UpdateItemView(APIView):
             quantity=serializer.validated_data["quantity"],
         )
 
+        CartCache.invalidate_cart(user_id)
+
         return Response({"item_id": item.id})
 
 
 class RemoveItemView(APIView):
 
+
     def delete(self, request, item_id):
 
+        user_id = request.user
+
         CartService.remove_item(item_id)
+        CartCache.invalidate_cart(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -86,5 +108,6 @@ class ClearCartView(APIView):
         user_id = request.user
 
         CartService.clear_cart(user_id)
+        CartCache.invalidate_cart(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)

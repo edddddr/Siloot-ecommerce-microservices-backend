@@ -5,10 +5,12 @@ from .clients.product_client import ProductClient
 from .clients.inventory_client import InventoryClient
 
 
+
 class CartService:
 
     @staticmethod
     def get_or_create_cart(user_id):
+
 
         cart, created = Cart.objects.get_or_create(
             user_id=user_id

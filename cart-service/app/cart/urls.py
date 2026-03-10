@@ -21,4 +21,4 @@ urlpatterns = [
 
     path("cart/clear/",
          ClearCartView.as_view()),
-]
+]    
