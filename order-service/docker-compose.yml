@@ -20,9 +20,9 @@ services:
   order-service:
     build: .
     container_name: order-service
-    # command: >
-    #   sh -c "python manage.py migrate &&
-    #          python manage.py runserver 0.0.0.0:8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./app:/app
     ports:
