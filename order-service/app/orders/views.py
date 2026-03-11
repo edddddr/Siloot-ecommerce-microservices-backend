@@ -26,3 +26,20 @@ class CreateOrderView(APIView):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
+
+
+class OrderDetailView(APIView):
+
+    def get(self, request, order_id):
+
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return Response(
+                {"detail": "Order not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = OrderSerializer(order)
+
+        return Response(serializer.data)
