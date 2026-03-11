@@ -43,3 +43,16 @@ class OrderDetailView(APIView):
         serializer = OrderSerializer(order)
 
         return Response(serializer.data)
+
+
+class UserOrdersView(APIView):
+
+    def get(self, request):
+
+        user_id = request.query_params.get("user_id")
+
+        orders = Order.objects.filter(user_id=user_id)
+
+        serializer = OrderSerializer(orders, many=True)
+
+        return Response(serializer.data)
