@@ -54,4 +54,16 @@ class OrderService:
         return order
 
 
+    @staticmethod
+    def update_order_status(order, new_status, note=""):
+        
+        order.status = new_status
+        order.save(update_fields=["status", "updated_at"])
 
+        OrderStatusHistory.objects.create(
+            order=order,
+            status=new_status,
+            note=note
+        )
+
+        return order
