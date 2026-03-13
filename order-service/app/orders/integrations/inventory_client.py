@@ -24,3 +24,17 @@ class InventoryClient:
             responses.append(response.json())
 
         return responses
+    
+
+    @staticmethod
+    def release_stock(reservation):
+
+        response = requests.post(
+            f"{INVENTORY_SERVICE_URL}/release",
+            json=reservation
+        )
+
+        if response.status_code != 200:
+            raise Exception("Inventory release failed")
+
+        return response.json()

@@ -51,3 +51,8 @@ class OrderCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("Order must contain at least one item.")
 
         return value
+
+
+class PaymentResultSerializer(serializers.Serializer):
+
+    order_id = serializers.UUIDField()
