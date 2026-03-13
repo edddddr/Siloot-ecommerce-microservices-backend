@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.db import transaction
 
 from .models import Order, OrderItem, OrderStatus, OrderStatusHistory
+from .integrations.inventory_client import InventoryClient
+from .integrations.payment_client import PaymentClient
 
 
 
@@ -26,6 +28,22 @@ class OrderService:
             status=OrderStatus.CREATED,
             total_amount=Decimal("0.00")
         )
+
+        reservations = OrderService.build_inventory_reservation(order)
+
+        InventoryClient.reserve_stock(reservations)
+
+        OrderService.update_order_status(
+            order,
+            OrderStatus.PENDING_PAYMENT,
+            "Inventory reserved successfully"
+        )
+
+        payment_payload = OrderService.build_payment_payload(order)
+
+        PaymentClient.start_payment(payment_payload)
+
+        
 
         for item in cart_items:
 
