@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
+        "NAME": os.getenv("POSTGRES_Name"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_HOST"),
@@ -83,16 +83,38 @@ DATABASES = {
 }
 
 
-# REST_FRAMEWORK = {
-#     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-# }
+# Redis Cache
 
-# SPECTACULAR_SETTINGS = {
-#     "TITLE": "Order Service API",
-#     "DESCRIPTION": "Order orchestration and checkout service",
-#     "VERSION": "1.0.0",
-#     "SERVE_INCLUDE_SCHEMA": False,
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+
+# DRF
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny"
+    ]
+}
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Order Service API",
+    "DESCRIPTION": "Order orchestration and checkout service",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
 
 
 
