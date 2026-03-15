@@ -6,8 +6,15 @@ from .models import Payment
 from .serializers import PaymentSerializer, PaymentCreateSerializer
 from .services import PaymentService
 
+from .authentication import InternalServiceAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 class PaymentCreateView(APIView):
+
+    authentication_classes = [InternalServiceAuthentication]
+    permission_classes = [IsAuthenticated]
+    
 
     def post(self, request):
 
@@ -29,6 +36,9 @@ class PaymentCreateView(APIView):
 
 
 class PaymentDetailView(APIView):
+
+    authentication_classes = [InternalServiceAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, payment_id):
 
