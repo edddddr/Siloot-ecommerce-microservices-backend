@@ -22,3 +22,8 @@ class PaymentCreateSerializer(serializers.Serializer):
     order_id = serializers.UUIDField()
     amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     currency = serializers.CharField(default="USD")
+
+
+class OrderResultSerializer(serializers.Serializer):
+
+    order_id = serializers.UUIDField()

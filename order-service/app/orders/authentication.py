@@ -1,11 +1,20 @@
 import jwt
-import os
 
+from django.conf import settings
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
 
-PUBLIC_KEY = os.getenv("AUTH_PUBLIC_KEY")
+class InternalServiceUser:
+    """
+    Fake user object for internal service authentication.
+    DRF requires request.user to exist and be authenticated.
+    """
+
+    is_authenticated = True
+
+    def __str__(self):
+        return "InternalServiceUser"
 
 
 class InternalServiceAuthentication(BaseAuthentication):
@@ -15,24 +24,32 @@ class InternalServiceAuthentication(BaseAuthentication):
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
-            raise AuthenticationFailed("Authorization header missing")
+            raise AuthenticationFailed("Missing Authorization header")
 
-        token = auth_header.split(" ")[1]
+        parts = auth_header.split()
+
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            raise AuthenticationFailed("Invalid Authorization header")
+
+        token = parts[1]
 
         try:
             payload = jwt.decode(
                 token,
-                PUBLIC_KEY,
-                algorithms=["RS256"],
-                audience="internal_services"
+                settings.JWT_PUBLIC_KEY,
+                algorithms=[settings.JWT_ALGORITHM],
+                options={"verify_aud": False},
             )
+
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Token expired")
 
         except jwt.InvalidTokenError:
             raise AuthenticationFailed("Invalid token")
 
+        # ensure token is internal service token
         if payload.get("role") != "internal_service":
-            raise AuthenticationFailed("Invalid service token")
+            raise AuthenticationFailed("Not an internal service token")
 
-        return (payload, None)
+        # return authenticated service user
+        return (InternalServiceUser(), payload)

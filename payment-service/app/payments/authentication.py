@@ -25,10 +25,6 @@ class InternalServiceAuthentication(BaseAuthentication):
 
         if not auth_header:
             raise AuthenticationFailed("Missing Authorization header")
-        
-        print(auth_header, "\n")
-
-        print("=======================",settings.JWT_PUBLIC_KEY)
 
         parts = auth_header.split()
 

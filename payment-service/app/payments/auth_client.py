@@ -7,15 +7,19 @@ class AuthClient:
     @staticmethod
     def get_internal_token():
 
-        url = f"{settings.AUTH_SERVICE_URL}/auth/internal/token/"
+        url = f"{settings.AUTH_SERVICE_URL}/internal/token/"
+        headers = {
+            "X-Internal-Secret": settings.INTERNAL_SERVICE_SECRET,
+            'Content-Type': 'application/json'
+            }
 
         payload = {
             "service_name": settings.SERVICE_NAME,
-            "service_secret": settings.SERVICE_SECRET
+            
         }
 
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, headers=headers)
 
         response.raise_for_status()
 
-        return response.json()["access_token"]
+        return response.json()["access"]

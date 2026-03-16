@@ -1,8 +1,7 @@
 import requests
-import os
 from .auth_client import AuthClient
+from django.conf import settings
 
-INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 
 
 class InventoryClient:
@@ -23,15 +22,16 @@ class InventoryClient:
         responses = []
 
         for item in reservations:
+            
 
             response = requests.post(
-                f"{INVENTORY_SERVICE_URL}/reserve/",
+                f"{settings.INVENTORY_SERVICE_URL}/reserve/",
                 json=item,
                 headers= headers
             )
-            print("reserved: _______________--------------------------", response.status_code)
+            
 
-            if response.status_code != 200:
+            if response.status_code != 201:
                 raise Exception("Inventory reservation failed")
    
                 
@@ -50,7 +50,7 @@ class InventoryClient:
         }
 
         response = requests.post(
-            f"{INVENTORY_SERVICE_URL}/release/",
+            f"{settings.INVENTORY_SERVICE_URL}/release/",
             json=reservation,
             headers=headers,
         )

@@ -14,8 +14,12 @@ JWT_ALGORITHM = "RS256"
 
 ORDER_SERVICE_URL = os.getenv("ORDER_SERVICE_URL")
 
+AUTH_SERVICE_URL=os.getenv("AUTH_SERVICE_URL")
 
+INTERNAL_SERVICE_SECRET = os.getenv("INTERNAL_SERVICE_SECRET")
 SERVICE_NAME = os.getenv("SERVICE_NAME")
+
+SERVICE_NAME = "payment-service"
 
 
 # Quick-start development settings - unsuitable for production

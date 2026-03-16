@@ -17,7 +17,6 @@ class AuthClient:
             "service_name": settings.SERVICE_NAME,
             
         }
-        print(payload, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 
         response = requests.post(url, json=payload, headers=headers)
 

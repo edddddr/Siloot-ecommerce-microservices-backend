@@ -7,6 +7,8 @@ from .serializers import OrderSerializer, OrderCreateSerializer, PaymentResultSe
 from .services import OrderService
 
 from .authentication import InternalServiceAuthentication
+
+
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -65,9 +67,11 @@ class PaymentSuccessView(APIView):
     authentication_classes = [InternalServiceAuthentication]
     permission_classes = [IsAuthenticated]
 
+
     def post(self, request):
 
         serializer = PaymentResultSerializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
 
         order_id = serializer.validated_data["order_id"]

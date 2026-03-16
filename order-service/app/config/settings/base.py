@@ -20,13 +20,20 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 SERVICE_NAME = "order-service"
 
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+
 INTERNAL_SERVICE_SECRET=os.getenv("INTERNAL_SERVICE_SECRET")
+
+INVENTORY_SERVICE_URL= os.getenv("INVENTORY_SERVICE_URL")
+
+PAYMENT_SERVICE_URL = os.getenv("PAYMENT_SERVICE_URL")
 # Application definition
+JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
