@@ -18,7 +18,9 @@ AUTH_PUBLIC_KEY = os.getenv("AUTH_PUBLIC_KEY")
 PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL")
 INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL")
 
-ALLOWED_HOSTS = ["*"]
+
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS =  [host.strip() for host in allowed_hosts_str.split(",") if host]
 
 # Application definition
 

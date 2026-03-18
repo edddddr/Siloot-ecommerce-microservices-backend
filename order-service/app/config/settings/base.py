@@ -18,9 +18,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+
+ALLOWED_HOSTS =  [host.strip() for host in allowed_hosts_str.split(",") if host]
 
 SERVICE_NAME = "order-service"
 

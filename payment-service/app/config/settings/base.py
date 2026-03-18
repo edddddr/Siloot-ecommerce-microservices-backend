@@ -8,9 +8,15 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(",") if host]
+
 JWT_PUBLIC_KEY = open(BASE_DIR / "keys/public.pem").read()
 
 JWT_ALGORITHM = "RS256"
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 ORDER_SERVICE_URL = os.getenv("ORDER_SERVICE_URL")
 
@@ -26,12 +32,10 @@ SERVICE_NAME = "payment-service"
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+\
 
 
 # Application definition
@@ -87,7 +91,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_Name"),
+        "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_HOST"),

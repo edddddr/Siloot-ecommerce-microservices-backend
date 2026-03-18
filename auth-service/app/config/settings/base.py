@@ -13,11 +13,10 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = [           # Match the Nginx upstream name
-                'localhost', 
-                '127.0.0.1', 
-                'host.docker.internal'    # Match the server address in Nginx
-                ]
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+
+ALLOWED_HOSTS =  [host.strip() for host in allowed_hosts_str.split(",") if host]
+print(ALLOWED_HOSTS)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -71,6 +70,8 @@ DATABASES = {
         "PORT": env("POSTGRES_PORT"),
     }
 }
+
+print("-------",env("POSTGRES_DB"))
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
