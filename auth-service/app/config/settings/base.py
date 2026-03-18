@@ -13,7 +13,11 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [           # Match the Nginx upstream name
+                'localhost', 
+                '127.0.0.1', 
+                'host.docker.internal'    # Match the server address in Nginx
+                ]
 
 INSTALLED_APPS = [
     "django.contrib.admin",

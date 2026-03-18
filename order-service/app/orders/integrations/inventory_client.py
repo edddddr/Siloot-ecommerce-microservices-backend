@@ -59,3 +59,23 @@ class InventoryClient:
             raise Exception("Inventory release failed")
 
         return response.json()
+    
+
+    @staticmethod
+    def release_stock(reservation):
+        token = AuthClient.get_internal_token()
+
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        response = requests.post(
+            f"{settings.INVENTORY_SERVICE_URL}/confirm/",
+            json=reservation,
+            headers=headers,
+        )
+
+        if response.status_code != 200:
+            raise Exception("Inventory release failed")
+
+        return response.json()
