@@ -1,0 +1,265 @@
+version: "3.9"
+
+services:
+
+  # ========================
+  # 🔐 AUTH SERVICE
+  # ========================
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    command: sh /entrypoint.sh
+    volumes:
+      - ./auth-service:/app
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./auth-service/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev  
+    depends_on:
+      - auth-db
+      - auth-redis
+    networks:
+      - microservices-network
+
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    env_file:
+      - ./auth-service/.env
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  auth-redis:
+    image: redis:7
+    container_name: auth-redis
+    networks:
+      - microservices-network
+
+
+  # ========================
+  # 📦 PRODUCT SERVICE
+  # ========================
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    command: sh /entrypoint.sh
+    volumes:
+      - ./product-service:/app
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./product-service/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev 
+    depends_on:
+      - product-db
+      - product-redis
+    networks:
+      - microservices-network
+
+  product-db:
+    image: postgres:15
+    container_name: product-db
+    env_file:
+      - ./product-service/.env
+    volumes:
+      - product_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  product-redis:
+    image: redis:7
+    container_name: product-redis
+    networks:
+      - microservices-network
+
+
+  # ========================
+  # 📦 INVENTORY SERVICE
+  # ========================
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    command: sh /entrypoint.sh
+    volumes:
+      - ./inventory-service:/app
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./inventory-service/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev 
+    depends_on:
+      - inventory-db
+      - inventory-redis
+    networks:
+      - microservices-network
+
+  inventory-db:
+    image: postgres:15
+    container_name: inventory-db
+    env_file:
+      - ./inventory-service/.env
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  inventory-redis:
+    image: redis:7
+    container_name: inventory-redis
+    networks:
+      - microservices-network
+
+
+  # ========================
+  # 🛒 CART SERVICE
+  # ========================
+  cart-service:
+    build: ./cart-service
+    container_name: cart-service
+    command: sh /entrypoint.sh
+    volumes:
+      - ./cart-service:/app
+    ports:
+      - "8004:8000"
+    env_file:
+      - ./cart-service/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev 
+    depends_on:
+      - cart-db
+      - cart-redis
+    networks:
+      - microservices-network
+
+  cart-db:
+    image: postgres:15
+    container_name: cart-db
+    env_file:
+      - ./cart-service/.env
+    volumes:
+      - cart_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  cart-redis:
+    image: redis:7
+    container_name: cart-redis
+    networks:
+      - microservices-network
+
+
+  # ========================
+  # 📦 ORDER SERVICE
+  # ========================
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    command: sh /entrypoint.sh
+    volumes:
+      - ./order-service:/app
+    ports:
+      - "8005:8000"
+    env_file:
+      - ./order-service/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev 
+    depends_on:
+      - order-db
+      - order-redis
+    networks:
+      - microservices-network
+
+  order-db:
+    image: postgres:15
+    container_name: order-db
+    env_file:
+      - ./order-service/.env
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  order-redis:
+    image: redis:7
+    container_name: order-redis
+    networks:
+      - microservices-network
+
+
+  # ========================
+  # 💳 PAYMENT SERVICE
+  # ========================
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    command: sh /entrypoint.sh
+    volumes:
+      - ./payment-service:/app
+    ports:
+      - "8006:8000"
+    env_file:
+      - ./payment-service/.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev 
+    depends_on:
+      - payment-db
+      - payment-redis
+    networks:
+      - microservices-network
+
+  payment-db:
+    image: postgres:15
+    container_name: payment-db
+    env_file:
+      - ./payment-service/.env
+    volumes:
+      - payment_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  payment-redis:
+    image: redis:7
+    container_name: payment-redis
+    networks:
+      - microservices-network
+
+
+  api-gateway:
+      build: ./api-gateway
+      ports:
+        - "8000:80"
+      depends_on:
+        - auth-service
+        - product-service
+        - inventory-service
+        - cart-service
+        - order-service
+        - payment-service
+      networks:
+        - microservices-network
+    
+
+# ========================
+# 🌐 NETWORK
+# ========================
+networks:
+  microservices-network:
+    driver: bridge
+
+
+# ========================
+# 💾 VOLUMES
+# ========================
+volumes:
+  auth_db_data:
+  product_db_data:
+  inventory_db_data:
+  cart_db_data:
+  order_db_data:
+  payment_db_data:
