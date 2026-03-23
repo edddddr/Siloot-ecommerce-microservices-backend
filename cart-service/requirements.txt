@@ -12,3 +12,4 @@ coverage
 drf-spectacular 
 PyJWT
 requests
+pika

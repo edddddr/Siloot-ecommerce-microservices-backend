@@ -9,4 +9,5 @@ faker
 djangorestframework-simplejwt[crypto]
 django-environ
 coverage
-drf-spectacular 
+drf-spectacular
+pika

@@ -229,6 +229,24 @@ services:
     networks:
       - microservices-network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    restart: always
+
+    ports:
+      - "5672:5672"     # AMQP (app communication)
+      - "15672:15672"   # Management UI
+
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - microservices-network
+
 
   api-gateway:
       build: ./api-gateway
@@ -250,6 +268,8 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - microservices-network
 
   grafana:
     image: grafana/grafana:10.2.0
@@ -258,6 +278,8 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+     - microservices-network
 
   
   promtail:
@@ -277,6 +299,8 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml  
+    networks: 
+      - microservices-network
     
 
 # ========================
@@ -297,3 +321,4 @@ volumes:
   cart_db_data:
   order_db_data:
   payment_db_data:
+  rabbitmq_data:

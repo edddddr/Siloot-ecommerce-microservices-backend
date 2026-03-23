@@ -11,3 +11,4 @@ django-environ
 coverage
 drf-spectacular 
 requests
+pika
