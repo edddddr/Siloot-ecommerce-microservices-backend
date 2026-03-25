@@ -1,6 +1,8 @@
 import os
 import pika
 import json
+import time
+import json
 
 class RabbitMQConnection:
     def __init__(self):
@@ -35,6 +37,8 @@ class EventPublisher:
             durable=True
         )
 
+
+
     def publish(self, routing_key, message):
         self.channel.basic_publish(
             exchange="ecommerce_events",
@@ -50,37 +54,116 @@ class EventPublisher:
 
 class EventConsumer:
     def __init__(self, queue_name, routing_key):
+        self.queue_name = queue_name
+        self.routing_key = routing_key
+
         self.connection = RabbitMQConnection().get_connection()
         self.channel = self.connection.channel()
-        self.queue_name = queue_name
-        
 
+        # ========================
+        # MAIN EXCHANGE
+        # ========================
         self.channel.exchange_declare(
             exchange="ecommerce_events",
             exchange_type="topic",
             durable=True
         )
 
-        self.channel.queue_declare(queue=self.queue_name, durable=True)
+        # ========================
+        # DLX (Dead Letter Exchange)
+        # ========================
+        self.channel.exchange_declare(
+            exchange="dlx_exchange",
+            exchange_type="topic",
+            durable=True
+        )
+
+        # ========================
+        # DLQ (Dead Letter Queue)
+        # ========================
+        self.channel.queue_declare(
+            queue="dead_letter_queue",
+            durable=True
+        )
+
+        self.channel.queue_bind(
+            exchange="dlx_exchange",
+            queue="dead_letter_queue",
+            routing_key="#"
+        )
+
+        # ========================
+        # MAIN QUEUE (with DLQ config)
+        # ========================
+        self.channel.queue_declare(
+            queue=self.queue_name,
+            durable=True,
+            arguments={
+                "x-dead-letter-exchange": "dlx_exchange"
+            }
+        )
 
         self.channel.queue_bind(
             exchange="ecommerce_events",
             queue=self.queue_name,
-            routing_key=routing_key
+            routing_key=self.routing_key
         )
+
+        # ========================
+        # FAIR DISPATCH
+        # ========================
+        self.channel.basic_qos(prefetch_count=1)
 
     def start_consuming(self, callback):
         def wrapper(ch, method, properties, body):
-            print(f"[→] Received: {method.routing_key}")
+            event = json.loads(body)
 
-            callback(json.loads(body))
+            retries = 0
+            if properties.headers and "x-retry" in properties.headers:
+                retries = properties.headers["x-retry"]
 
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            try:
+                print(f"[→] {method.routing_key} | Retry: {retries}")
+
+                callback(event)
+
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+
+            except Exception as e:
+                print(f"[ERROR] {e}")
+
+                if retries < 3:
+                    print(f"[Retry] Sending back ({retries + 1})")
+
+                    time.sleep(2)
+
+                    ch.basic_publish(
+                        exchange="ecommerce_events",
+                        routing_key=method.routing_key,
+                        body=body,
+                        properties=pika.BasicProperties(
+                            delivery_mode=2,
+                            headers={"x-retry": retries + 1}
+                        )
+                    )
+                else:
+                    print("[DLQ] Max retries exceeded → sending to DLQ")
+
+                    ch.basic_publish(
+                        exchange="dlx_exchange",
+                        routing_key=method.routing_key,
+                        body=body,
+                        properties=pika.BasicProperties(
+                            delivery_mode=2
+                        )
+                    )
+
+                ch.basic_ack(delivery_tag=method.delivery_tag)
 
         self.channel.basic_consume(
             queue=self.queue_name,
             on_message_callback=wrapper
         )
 
-        print("[*] Waiting for messages...")
+        print(f"[*] Listening on {self.queue_name}...")
         self.channel.start_consuming()

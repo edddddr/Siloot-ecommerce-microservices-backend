@@ -85,3 +85,9 @@ class OrderStatusHistory(models.Model):
 
     class Meta:
         db_table = "order_status_history"
+
+
+    
+class ProcessedEvent(models.Model):
+    event_id = models.UUIDField(unique=True)
+    processed_at = models.DateTimeField(auto_now_add=True)
