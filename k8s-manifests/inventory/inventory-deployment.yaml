@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - name: inventory-service
+          image: edddddr/inventory-service:latest
+          ports:
+            - containerPort: 8000
+
+          envFrom:
+            - configMapRef:
+                name: inventory-config
+            - secretRef:
+                name: inventory-secret
+
+          # readinessProbe:
+          #   httpGet:
+          #     path: /api/v1/inventory/stock/
+          #     port: 8000
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 5
+
+          # livenessProbe:
+          #   httpGet:
+          #     path: /api/v1/inventory/stock/
+          #     port: 8000
+          #   initialDelaySeconds: 20
+          #   periodSeconds: 10
