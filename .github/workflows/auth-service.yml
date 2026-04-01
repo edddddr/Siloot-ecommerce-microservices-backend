@@ -29,8 +29,8 @@ jobs:
 
       - name: Tag image
         run: |
-          docker tag auth-service:latest ${{ secrets.ECR_REGISTRY }}/auth-service:${{ github.sha }}
+          docker tag auth-service:latest ${{ secrets.ECR_REGISTRY }}/ecommerce/auth-service:${{ github.sha }}
 
       - name: Push image to ECR
         run: |
-          docker push ${{ secrets.ECR_REGISTRY }}/auth-service:${{ github.sha }}
+          docker push ${{ secrets.ECR_REGISTRY }}/ecommerce/auth-service:${{ github.sha }}
