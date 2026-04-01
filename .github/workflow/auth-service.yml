@@ -25,11 +25,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t auth-service ./auth-service
+          docker build -t ecommerce/auth-service ./auth-service
 
       - name: Tag image
         run: |
-          docker tag auth-service:latest ${{ secrets.ECR_REGISTRY }}/auth-service:${{ github.sha }}
+          docker tag ecommerce/auth-service:latest ${{ secrets.ECR_REGISTRY }}/auth-service:${{ github.sha }}
 
       - name: Push image to ECR
         run: |
