@@ -8,17 +8,17 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", default="*")
 
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(",") if host]
 
-JWT_PUBLIC_KEY = open(BASE_DIR / "keys/public.pem").read()
+JWT_PUBLIC_KEY = os.getenv("AUTH_PUBLIC_KEY")
 
 JWT_ALGORITHM = "RS256"
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-ORDER_SERVICE_URL = os.getenv("ORDER_SERVICE_URL")
+# ORDER_SERVICE_URL = os.getenv("ORDER_SERVICE_URL")
 
 AUTH_SERVICE_URL=os.getenv("AUTH_SERVICE_URL")
 
@@ -35,7 +35,7 @@ SERVICE_NAME = "payment-service"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-\
+
 
 
 # Application definition

@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: edddddr/auth-service:latest
+          image: 949839457616.dkr.ecr.eu-north-1.amazonaws.com/ecommerce/auth-service:f3ed2bf30a60b9fb90f3b2fce8c2d337e4a052a8
           ports:
-            - containerPort: 8000
-            
+            - containerPort: 8001
+
           resources:
             requests:
               cpu: "100m"

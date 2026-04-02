@@ -16,12 +16,12 @@ JWT_ALGORITHM = "RS256"
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-allowed_hosts_str = os.getenv("ALLOWED_HOSTS", "")
+allowed_hosts_str = os.getenv("ALLOWED_HOSTS", default="*")
 
 ALLOWED_HOSTS =  [host.strip() for host in allowed_hosts_str.split(",") if host]
 
@@ -79,6 +79,21 @@ CACHES = {
         }
     }
 }
+
+
+# redis_host = os.getenv("REDIS_HOST", default="redis.data.svc.cluster.local")
+# redis_port = os.getenv("REDIS_PORT", "6379")
+
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": f"redis://{redis_host}:{redis_port}/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         },
+#     }
+# }
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
