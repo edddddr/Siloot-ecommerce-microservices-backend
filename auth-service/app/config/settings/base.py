@@ -148,9 +148,9 @@ LOGGING = {
             "()": "config.logging.filters.RequestIDFilter",
         },
 
-        "trace_id": {
-        "()": "config.logging.filters.TraceIDFilter",
-        },
+        # "trace_id": {
+        # "()": "config.logging.filters.TraceIDFilter",
+        # },
     },
 
     "formatters": {
@@ -158,7 +158,7 @@ LOGGING = {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
             "format": (
                 "%(asctime)s %(levelname)s %(name)s "
-                "%(service)s %(request_id)s %(message)s %(trace_id)s"
+                "%(service)s %(request_id)s %(message)s "
             ),
         },
     },
