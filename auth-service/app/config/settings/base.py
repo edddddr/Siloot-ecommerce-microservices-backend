@@ -16,6 +16,7 @@ DEBUG = False
 allowed_hosts_str = os.getenv("ALLOWED_HOSTS", default="*")
 
 ALLOWED_HOSTS =  [host.strip() for host in allowed_hosts_str.split(",") if host]
+print(ALLOWED_HOSTS)
 
 INSTALLED_APPS = [
     "django.contrib.admin",

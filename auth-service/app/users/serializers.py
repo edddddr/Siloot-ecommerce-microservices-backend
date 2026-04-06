@@ -14,14 +14,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        role = validated_data.get('role', UserRole.CUSTOMER)
 
-        if role == UserRole.ADMIN:
-             role = UserRole.CUSTOMER 
 
         user = User.objects.create_user(password=password, **validated_data)
-
-        user.role = role
+        
 
         user.save()
 
@@ -43,6 +39,8 @@ class LoginSerializer(serializers.Serializer):
         
         log_login_attempt(data["email"], True)
         refresh = RefreshToken.for_user(user)
+        refresh["role"] = user.role if user.role else None
+        refresh["email"] = user.email
 
         return {
             "access": str(refresh.access_token),
