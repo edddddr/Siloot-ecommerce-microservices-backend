@@ -69,7 +69,26 @@ class CategoryViewSet(viewsets.ModelViewSet):
             }
         )
     
-    
+    def create(self, request, *args, **kwargs):
+        logger.info("Category creation attempt", extra={
+            "user_id": request.user.id,
+            "category_name": request.data.get("name")
+        })
+        
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            
+            logger.info("Category created successfully", extra={"category_id": serializer.data.get("id")})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        except serializers.ValidationError as e:
+            logger.warning("Category validation failed", extra={"errors": e.detail})
+            return Response({"error": "Invalid data", "details": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error("Critical error in category creation", extra={"error": str(e)}, exc_info=True)
+            return Response({"error": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
     def get_permissions(self):
@@ -86,8 +105,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     pagination_class = ProductCursorPagination
 
-    # def get_object(self):
-    #     return Product.objects.first()
+
+
+    filterset_fields = ["category", "is_active"]
+    search_fields = ["name", "description"]
+    ordering_fields = ["price", "created_at"]
 
     def get_object(self):
         """
@@ -114,18 +136,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return obj
       
 
-    filterset_fields = ["category", "is_active"]
-    search_fields = ["name", "description"]
-    ordering_fields = ["price", "created_at"]
-
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            return [AllowAny()]        
-        if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAuthenticated(), IsAdminUserRole()]
     
-    
-
 
     # Caching | redis 
     def list(self, request, *args, **kwargs):
@@ -133,8 +144,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         cached_data = cache.get(cache_key)
 
         if cached_data:
+            logger.info("Product list cache HIT", extra={"cache_key": cache_key})
             return Response(cached_data)
-
+        
+        logger.info("Product list cache MISS", extra={"cache_key": cache_key})
         response = super().list(request, *args, **kwargs)
 
         cache_product_list(cache_key, response.data)
@@ -150,15 +163,29 @@ class ProductViewSet(viewsets.ModelViewSet):
         
         cached_data = cache.get(cache_key)
         if cached_data:
+            logger.info("Product detail cache HIT", extra={"product_lookup": lookup_value})
             return Response(cached_data)
-
-        response = super().retrieve(request, *args, **kwargs)
         
-        # Only cache if the request was successful (200 OK)
-        if response.status_code == 200:
-            cache_product_detail(cache_key, response.data)
+        logger.info("Product detail cache MISS", extra={"product_lookup": lookup_value})
 
-        return response
+        try:
+            response = super().retrieve(request, *args, **kwargs)
+            if response.status_code == 200:
+                cache_product_detail(cache_key, response.data)
+            return response
+
+        except Exception as e:
+            logger.error("Product retrieval failed", extra={"error": str(e), "pk": lookup_value})
+            raise
+    
+    @extend_schema(
+        summary="Create Product (Admin Only)",
+        request=ProductSerializer,
+        auth=[{'jwtAuth': []}]
+    )
+    def create(self, request, *args, **kwargs):
+        logger.info("Product creation attempt", extra={"user_id": request.user.id})
+        return super().create(request, *args, **kwargs) 
     
     def perform_create(self, serializer):
         instance = serializer.save()
@@ -174,5 +201,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         instance.delete()
         invalidate_product_cache()
 
-
+    
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]        
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAuthenticated(), IsAdminUserRole()]
+    
 
