@@ -7,9 +7,9 @@ argon2-cffi
 django-environ
 django-redis
 coverage
-python-json-logger
 drf-spectacular 
 
+python-json-logger
 django-prometheus
 opentelemetry-api
 opentelemetry-sdk

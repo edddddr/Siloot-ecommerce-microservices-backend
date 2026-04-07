@@ -270,7 +270,7 @@ class ReleaseReservationView(APIView):
                     )
                     
 
-            reservation = InventoryService.release_reservation(
+            reservation = InventoryService(
                 serializer.validated_data["reservation_id"]
             )
 
@@ -287,10 +287,10 @@ class ReleaseReservationView(APIView):
                 status=status.HTTP_200_OK
             )
 
-        except ReservationIsProcessed as e:
+        except ReservationIsProcessed:
             # This can happen if a background task already cleaned up the expired reservation
             logger.warning(
-                f"Release skipped: {str(e)} or handled", 
+                "Release skipped: Reservation already gone or handled", 
                 extra={"reservation_id": reservation_id}
             )
             return Response(
@@ -311,49 +311,36 @@ class ReleaseReservationView(APIView):
 
 
 
-
-
 @extend_schema(
     summary="Get available stock",
-    description="Returns available stock for a product. Optimized with Redis caching.",
-    responses={
-        200: inline_serializer(
-            name="StockResponse",
-            fields={
-                "product_id": serializers.UUIDField(),
-                "available_stock": serializers.IntegerField()
-            }
-        ),
-        404: inline_serializer(
-            name="ProductNotFound",
-            fields={"error": serializers.CharField()}
-        ),
-        500: inline_serializer(
-            name="InventoryError",
-            fields={"error": serializers.CharField()}
-        )
-    }
+    description="Returns available stock for a product (cached with Redis)."
 )
 @api_view(["GET"])
 def get_stock(request, product_id):
-
+    
     try:
-        stock = InventoryCache.get_stock(product_id)
-
-        if stock is None:
-            logger.info("Stock cache MISS", extra={"product_id": product_id})
+            # 1. Attempt to get from Redis
+            stock = InventoryCache.get_stock(product_id)
             
-            return Response(
-                {"error": "Product stock information not found"}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
+            # 2. Logic for Cache Miss
+            if stock is None:
+                logger.info("Stock cache MISS", extra={"product_id": product_id})
+                # Fallback to Database logic if Cache is empty
+                # stock = InventoryService.get_actual_stock(product_id)
+                # InventoryCache.set_stock(product_id, stock)
+                
+                # If still not found after fallback
+                return Response(
+                    {"error": "Product stock information not found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
-        logger.debug("Stock cache HIT", extra={"product_id": product_id})
-        
-        return Response({
-            "product_id": product_id,
-            "available_stock": stock
-        }, status=status.HTTP_200_OK)
+            logger.debug("Stock cache HIT", extra={"product_id": product_id})
+            
+            return Response({
+                "product_id": product_id,
+                "available_stock": stock
+            }, status=status.HTTP_200_OK)
 
     except Exception as e:
         logger.error(

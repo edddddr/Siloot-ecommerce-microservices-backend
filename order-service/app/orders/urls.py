@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateOrderView, OrderDetailView, UserOrdersView, PaymentSuccessView, PaymentFailedView
+from .views import CreateOrderView, OrderDetailView, UserOrdersView
 
 
 urlpatterns = [
@@ -10,8 +10,8 @@ urlpatterns = [
 
     path("orders/user/<uuid:user_id>/", UserOrdersView.as_view()),
 
-    path("orders/payment-success/", PaymentSuccessView.as_view()),
-    path("orders/payment-failed/", PaymentFailedView.as_view()),
+    # path("orders/payment-success/", PaymentSuccessView.as_view()),
+    # path("orders/payment-failed/", PaymentFailedView.as_view()),
 
 
 ]

@@ -160,7 +160,9 @@ services:
   order-service:
     build: ./order-service
     container_name: order-service
-    command: sh /entrypoint.sh python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "sh /entrypoint.sh && 
+             python /app/app/manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./order-service:/app
     ports:
@@ -193,7 +195,9 @@ services:
 
   order-worker:
     build: ./order-service
-    command: sh /entrypoint.sh python manage.py run_consumers
+    command: >
+      sh -c "sh /entrypoint.sh && 
+             python /app/manage.py run_consumers"
     env_file:
       - ./order-service/.env
     depends_on:
@@ -244,7 +248,9 @@ services:
 
   payment-worker:
     build: ./payment-service
-    command: sh /entrypoint.sh python manage.py run_consumers
+    command: >
+      sh -c "sh /entrypoint.sh && 
+             python /app/manage.py run_consumers"
     env_file:
       - ./payment-service/.env
     depends_on:

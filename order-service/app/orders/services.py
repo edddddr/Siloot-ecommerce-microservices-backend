@@ -1,3 +1,4 @@
+import logging
 import uuid
 from decimal import Decimal
 from django.db import transaction
@@ -10,6 +11,7 @@ from .common.messaging.rabbitmq import EventPublisher
 from .common.event.order_events import build_order_created_event
 
 
+logger = logging.getLogger(__name__)
 
     
 class OrderService:
@@ -55,8 +57,9 @@ class OrderService:
         # 4. Handle External Microservice calls
         # Now 'order' has the correct total_amount for the payment payload
         try:
+            logger.info("Initiating inventory reservation", extra={"order_id": order.id})
             reservations = OrderService.build_inventory_reservation(order)
-            print("\n",{"reservation : ":reservations}, "\n")
+            
             InventoryClient.reserve_stock(reservations)
 
             OrderService.update_order_status(
@@ -65,26 +68,29 @@ class OrderService:
                 "Inventory reserved successfully"
             )
 
-            # payment_payload = OrderService.build_payment_payload(order)
-            # print("\n", {"payment_payload : ": payment_payload})
+            logger.info("Publishing order.created event", extra={"order_id": order.id})
             publisher = EventPublisher()
-
             event = build_order_created_event(order)
 
-            # transaction.on_commit(lambda: 
-            #     publisher.publish(
-            #                     "order.created",
-            #                     event
-            #                     )
-            # )
-            publisher.publish(
-                                "order.created",
-                                event
-                                )
-            # PaymentClient.start_payment(payment_payload)
+
+            publisher.publish("order.created", event)
+
+
 
         except Exception as e:
-            # In a real system, you'd handle rollback/compensation here
+            # 4. COMPENSATION LOGIC (Saga Pattern Lite)
+            logger.error(
+                "Order creation failed - Initiating compensation", 
+                extra={"order_id": order.id, "error": str(e)},
+                exc_info=True
+            )
+            
+            # If the DB transaction rolls back, the order record disappears.
+            # But if Inventory reserved stock, we must tell it to release it!
+            # In a true Saga, you'd send a "Cancel Reservation" message here.
+            
+            order.status = OrderStatus.FAILED
+            order.save()
             raise e
 
         # 5. Log History

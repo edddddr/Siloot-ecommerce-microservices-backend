@@ -81,14 +81,20 @@ class CartService:
             product_name = product["name"]
             price = product["price"]
 
-            item, created = CartItem.objects.get_or_create(
-                cart=cart,
-                product_id=product_id,
-                product_name = product_name,
-                quantity = quantity,
-                price  = price,
-            )
 
+            try:
+                item, created = CartItem.objects.get_or_create(
+                    cart=cart,
+                    product_id=product_id,
+                    product_name = product_name,
+                    quantity = quantity,
+                    price  = price,
+                )
+
+            except IntegrityError:
+                
+                item = CartItem.objects.get(cart=cart, product_id=product_id)
+                created = False
 
             if not created:
                 # If item exists, we increment the quantity instead of overwriting
