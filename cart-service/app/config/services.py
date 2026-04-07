@@ -57,7 +57,8 @@ class CartService:
 
 
         cart = CartService.get_or_create_cart(user_id)
-        
+
+        product = ProductClient.get_product(product_id)
 
         available_stock = InventoryClient.get_stock(product_id)
 
@@ -66,6 +67,7 @@ class CartService:
 
         product = ProductClient.get_product(product_id)
 
+        print("/n", product["name"], "/n", product["price"])
 
         product_name = product["name"]
         price = product["price"]
@@ -78,8 +80,10 @@ class CartService:
             price  = price,
         )
 
+        print(item)
 
         if not created:
+            # item.quantity += quantity
             item.save()
 
         return item

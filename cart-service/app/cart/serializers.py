@@ -43,3 +43,11 @@ class AddItemSerializer(serializers.Serializer):
 class UpdateItemSerializer(serializers.Serializer):
 
     quantity = serializers.IntegerField(min_value=1)
+
+
+
+class ErrorResponseSerializer(serializers.Serializer):
+    error = serializers.CharField()
+
+class ReservationNotFoundErrorSerializer(serializers.Serializer):
+    error = serializers.CharField()

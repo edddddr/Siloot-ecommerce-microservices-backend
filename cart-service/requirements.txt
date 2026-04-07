@@ -13,3 +13,11 @@ drf-spectacular
 PyJWT
 requests
 pika
+
+python-json-logger
+django-prometheus
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-instrumentation-django
+opentelemetry-instrumentation-requests
+opentelemetry-exporter-otlp

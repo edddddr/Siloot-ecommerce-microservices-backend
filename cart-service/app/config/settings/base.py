@@ -45,6 +45,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "config.middleware.request_id.RequestIDMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -107,11 +108,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "cart.authentication.jwt_authentication.JWTAuthentication",
     ),
-}
 
-REST_FRAMEWORK.update({
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-})
+}
 
 
 CACHES = {
@@ -123,20 +122,6 @@ CACHES = {
         }
     }
 }
-
-redis_host = os.getenv("REDIS_HOST", default="redis.data.svc.cluster.local")
-redis_port = os.getenv("REDIS_PORT", "6379")
-
-
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": f"redis://{redis_host}:{redis_port}/1",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         },
-#     }
-# }
 
 
 SPECTACULAR_SETTINGS = {
@@ -159,6 +144,51 @@ SPECTACULAR_SETTINGS = {
     'SECURITY': [{'BearerAuth': []}],
 }
 
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "filters": {
+        "service_name": {
+            "()": "config.logging.filters.ServiceNameFilter",
+        },
+        "request_id": {
+            "()": "config.logging.filters.RequestIDFilter",
+        },
+
+        # "trace_id": {
+        # "()": "config.logging.filters.TraceIDFilter",
+        # },
+    },
+
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": (
+                "%(asctime)s %(levelname)s %(name)s "
+                "%(service)s %(request_id)s %(message)s "
+            ),
+        },
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "json",
+            "filters": ["service_name", "request_id"],
+        },
+    },
+
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+    },
+}
+
 AUTH_PASSWORD_VALIDATORS = []
 LANGUAGE_CODE = 'en-us'
 
@@ -178,3 +208,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SERVICE_NAME = "cart-service"
