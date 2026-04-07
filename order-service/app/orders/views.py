@@ -3,14 +3,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, serializers
 
-from .models import Order, OrderStatus
-from .serializers import OrderSerializer, OrderCreateSerializer, PaymentResultSerializer
+
+from .serializers import OrderSerializer, OrderCreateSerializer
 from .services import OrderService
 
-from .authentication import InternalServiceAuthentication
+from .models import Order
+
+# from .authentication import InternalServiceAuthentication
 
 
-from rest_framework.permissions import IsAuthenticated
+# from rest_framework.permissions import IsAuthenticated
 
 from drf_spectacular.utils import extend_schema, inline_serializer
 
@@ -136,7 +138,7 @@ class UserOrdersView(APIView):
     def get(self, request, user_id):
 
 
-        orders = Order.objects.filter(user_id=user_id).order_by('-created_at')
+        orders = Order.objects.filter(user_id=user_id).prefetch_related('items').order_by('-created_at')
 
         serializer = OrderSerializer(orders, many=True)
 

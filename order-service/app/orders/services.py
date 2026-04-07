@@ -5,7 +5,6 @@ from django.db import transaction
 
 from .models import Order, OrderItem, OrderStatus, OrderStatusHistory
 from .integrations.inventory_client import InventoryClient
-from .integrations.payment_client import PaymentClient
 
 from .common.messaging.rabbitmq import EventPublisher
 from .common.event.order_events import build_order_created_event
