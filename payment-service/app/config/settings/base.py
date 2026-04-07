@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "config.middleware.request_id.RequestIDMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -130,18 +131,65 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Order Service API",
-    "DESCRIPTION": "Order orchestration and checkout service",
-    "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-}
-
 
 SIMPLE_JWT = {
 
     "ALGORITHM": "RS256",
     "VERIFYING_KEY": JWT_PUBLIC_KEY,
+}
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Payment Service API",
+    "DESCRIPTION": "paymnet orchestration and checkout service",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
+
+
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "filters": {
+        "service_name": {
+            "()": "config.logging.filters.ServiceNameFilter",
+        },
+        "request_id": {
+            "()": "config.logging.filters.RequestIDFilter",
+        },
+
+        # "trace_id": {
+        # "()": "config.logging.filters.TraceIDFilter",
+        # },
+    },
+
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": (
+                "%(asctime)s %(levelname)s %(name)s "
+                "%(service)s %(request_id)s %(message)s "
+            ),
+        },
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "json",
+            "filters": ["service_name", "request_id"],
+        },
+    },
+
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+    },
 }
 
 
@@ -185,3 +233,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SERVICE_NAME = 'payment_service'
