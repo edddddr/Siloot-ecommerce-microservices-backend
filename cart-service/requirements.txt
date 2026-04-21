@@ -21,3 +21,6 @@ opentelemetry-sdk
 opentelemetry-instrumentation-django
 opentelemetry-instrumentation-requests
 opentelemetry-exporter-otlp
+
+
+django-cors-headers

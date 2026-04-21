@@ -1,7 +1,387 @@
+# version: "3.9"
+
+# services:
+
+#   # ========================
+#   # 🔐 AUTH SERVICE
+#   # ========================
+#   auth-service:
+#     build: ./auth-service
+#     container_name: auth-service
+#     command: sh /entrypoint.sh
+#     volumes:
+#       - ./auth-service:/app
+#     ports:
+#       - "8001:8000"
+#     env_file:
+#       - ./auth-service/.env
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev  
+#     depends_on:
+#       - auth-db
+#       - auth-redis
+#     networks:
+#       - microservices-network
+
+#   auth-db:
+#     image: postgres:15
+#     container_name: auth-db
+#     env_file:
+#       - ./auth-service/.env
+#     volumes:
+#       - auth_db_data:/var/lib/postgresql/data
+#     networks:
+#       - microservices-network
+
+#   auth-redis:
+#     image: redis:7
+#     container_name: auth-redis
+#     networks:
+#       - microservices-network
+
+
+#   # ========================
+#   # 📦 PRODUCT SERVICE
+#   # ========================
+#   product-service:
+#     build: ./product-service
+#     container_name: product-service
+#     command: sh /entrypoint.sh
+#     volumes:
+#       - ./product-service:/app
+#     ports:
+#       - "8002:8000"
+#     env_file:
+#       - ./product-service/.env
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev 
+#     depends_on:
+#       - product-db
+#       - product-redis
+#     networks:
+#       - microservices-network
+
+#   product-db:
+#     image: postgres:15
+#     container_name: product-db
+#     env_file:
+#       - ./product-service/.env
+#     volumes:
+#       - product_db_data:/var/lib/postgresql/data
+#     networks:
+#       - microservices-network
+
+#   product-redis:
+#     image: redis:7
+#     container_name: product-redis
+#     networks:
+#       - microservices-network
+
+
+#   # ========================
+#   # 📦 INVENTORY SERVICE
+#   # ========================
+#   inventory-service:
+#     build: ./inventory-service
+#     container_name: inventory-service
+#     command: sh /entrypoint.sh
+#     volumes:
+#       - ./inventory-service:/app
+#     ports:
+#       - "8003:8000"
+#     env_file:
+#       - ./inventory-service/.env
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev 
+#     depends_on:
+#       - inventory-db
+#       - inventory-redis
+#     networks:
+#       - microservices-network
+
+#   inventory-db:
+#     image: postgres:15
+#     container_name: inventory-db
+#     env_file:
+#       - ./inventory-service/.env
+#     volumes:
+#       - inventory_db_data:/var/lib/postgresql/data
+#     networks:
+#       - microservices-network
+
+#   inventory-redis:
+#     image: redis:7
+#     container_name: inventory-redis
+#     networks:
+#       - microservices-network
+
+
+#   # ========================
+#   # 🛒 CART SERVICE
+#   # ========================
+#   cart-service:
+#     build: ./cart-service
+#     container_name: cart-service
+#     command: sh /entrypoint.sh
+#     volumes:
+#       - ./cart-service:/app
+#     ports:
+#       - "8004:8000"
+#     env_file:
+#       - ./cart-service/.env
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev 
+#     depends_on:
+#       - cart-db
+#       - cart-redis
+#     networks:
+#       - microservices-network
+
+#   cart-db:
+#     image: postgres:15
+#     container_name: cart-db
+#     env_file:
+#       - ./cart-service/.env
+#     volumes:
+#       - cart_db_data:/var/lib/postgresql/data
+#     networks:
+#       - microservices-network
+
+#   cart-redis:
+#     image: redis:7
+#     container_name: cart-redis
+#     networks:
+#       - microservices-network
+
+
+#   # ========================
+#   # 📦 ORDER SERVICE
+#   # ========================
+#   order-service:
+#     build: ./order-service
+#     container_name: order-service
+#     command: >
+#       sh -c "sh /entrypoint.sh && 
+#              python /app/app/manage.py runserver 0.0.0.0:8000"
+#     volumes:
+#       - ./order-service:/app
+#     ports:
+#       - "8005:8000"
+#     env_file:
+#       - ./order-service/.env
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev 
+#     depends_on:
+#       - order-db
+#       - order-redis
+#     networks:
+#       - microservices-network
+
+#   order-db:
+#     image: postgres:15
+#     container_name: order-db
+#     env_file:
+#       - ./order-service/.env
+#     volumes:
+#       - order_db_data:/var/lib/postgresql/data
+#     networks:
+#       - microservices-network
+
+#   order-redis:
+#     image: redis:7
+#     container_name: order-redis
+#     networks:
+#       - microservices-network
+
+#   order-worker:
+#     build: ./order-service
+#     command: >
+#       sh -c "sh /entrypoint.sh && 
+#              python /app/manage.py run_consumers"
+#     env_file:
+#       - ./order-service/.env
+#     depends_on:
+#       - order-db
+#       - rabbitmq
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev   
+#     networks:
+#       - microservices-network  
+
+
+#   # ========================
+#   # 💳 PAYMENT SERVICE
+#   # ========================
+#   payment-service:
+#     build: ./payment-service
+#     container_name: payment-service
+#     command: sh /entrypoint.sh python /app/app/manage.py runserver 0.0.0.0:8000
+#     volumes:
+#       - ./payment-service:/app
+#     ports:
+#       - "8006:8000"
+#     env_file:
+#       - ./payment-service/.env
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev 
+#     depends_on:
+#       - payment-db
+#       - payment-redis
+#     networks:
+#       - microservices-network
+
+#   payment-db:
+#     image: postgres:15
+#     container_name: payment-db
+#     env_file:
+#       - ./payment-service/.env
+#     volumes:
+#       - payment_db_data:/var/lib/postgresql/data
+#     networks:
+#       - microservices-network
+
+#   payment-redis:
+#     image: redis:7
+#     container_name: payment-redis
+#     networks:
+#       - microservices-network
+
+#   payment-worker:
+#     build: ./payment-service
+#     command: >
+#       sh -c "sh /entrypoint.sh && 
+#              python /app/manage.py run_consumers"
+#     env_file:
+#       - ./payment-service/.env
+#     depends_on:
+#       - payment-db
+#       - rabbitmq
+#     environment:
+#       DJANGO_SETTINGS_MODULE: config.settings.dev   
+#     networks:
+#       - microservices-network 
+
+
+
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     hostname: rabbitmq
+#     restart: always
+
+#     ports:
+#       - "5672:5672"     # AMQP (app communication)
+#       - "15672:15672"   # Management UI
+
+#     environment:
+#       RABBITMQ_DEFAULT_USER: admin
+#       RABBITMQ_DEFAULT_PASS: admin123
+
+#     volumes:
+#       - rabbitmq_data:/var/lib/rabbitmq
+
+#     networks:
+#       - microservices-network
+
+#   api-gateway:
+#       build: ./api-gateway
+#       ports:
+#         - "8000:80"
+#       depends_on:
+#         - auth-service
+#         - product-service
+#         - inventory-service
+#         - cart-service
+#         - order-service
+#         - payment-service
+#         - promtail
+#         - loki
+#         - grafana
+#         # - prometheus
+#       networks:
+#         - microservices-network
+    
+#   loki:
+#     image: grafana/loki:2.9.0
+#     container_name: loki
+#     ports:
+#       - "3100:3100"
+#     volumes:
+#       - ./loki:/etc/loki
+#       - ./loki-data:/loki
+#     command: -config.file=/etc/loki/loki-config.yml
+#     networks:
+#         - microservices-network
+
+
+#   promtail:
+#     image: grafana/promtail:2.9.0
+#     container_name: promtail
+#     volumes:
+#       - /var/log:/var/log
+#       - /var/lib/docker/containers:/var/lib/docker/containers
+#       - ./promtail:/etc/promtail
+#     command: -config.file=/etc/promtail/promtail-config.yml
+#     networks:
+#         - microservices-network
+  
+#   # will add after the all service
+#   # prometheus:
+#   #   image: prom/prometheus:latest
+#   #   container_name: prometheus
+#   #   volumes:
+#   #     - ./prometheus:/etc/prometheus
+#   #   ports:
+#   #     - "9090:9090"
+#   #   networks:
+#   #       - microservices-network
+
+
+#   grafana:
+#     image: grafana/grafana:10.2.0
+#     container_name: grafana
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - GF_SECURITY_ADMIN_PASSWORD=admin
+#     networks:
+#         - microservices-network
+  
+
+#   jaeger:
+#     image: jaegertracing/all-in-one
+#     ports:
+#       - "16686:16686"   # UI
+#       - "4317:4317"  
+#     networks:
+#         - microservices-network
+
+# # ========================
+# # 🌐 NETWORK
+# # ========================
+# networks:
+#   microservices-network:
+#     driver: bridge
+
+
+# # ========================
+# # 💾 VOLUMES
+# # ========================
+# volumes:
+#   auth_db_data:
+#   product_db_data:
+#   inventory_db_data:
+#   cart_db_data:
+#   order_db_data:
+#   payment_db_data:
+#   rabbitmq_data:
+#   loki-data:
+
+
+
 version: "3.9"
 
 services:
-
   # ========================
   # 🔐 AUTH SERVICE
   # ========================
@@ -9,6 +389,13 @@ services:
     build: ./auth-service
     container_name: auth-service
     command: sh /entrypoint.sh
+    deploy: &gpu_config
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     volumes:
       - ./auth-service:/app
     ports:
@@ -23,23 +410,6 @@ services:
     networks:
       - microservices-network
 
-  auth-db:
-    image: postgres:15
-    container_name: auth-db
-    env_file:
-      - ./auth-service/.env
-    volumes:
-      - auth_db_data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-
-  auth-redis:
-    image: redis:7
-    container_name: auth-redis
-    networks:
-      - microservices-network
-
-
   # ========================
   # 📦 PRODUCT SERVICE
   # ========================
@@ -47,6 +417,7 @@ services:
     build: ./product-service
     container_name: product-service
     command: sh /entrypoint.sh
+    deploy: *gpu_config
     volumes:
       - ./product-service:/app
     ports:
@@ -61,23 +432,6 @@ services:
     networks:
       - microservices-network
 
-  product-db:
-    image: postgres:15
-    container_name: product-db
-    env_file:
-      - ./product-service/.env
-    volumes:
-      - product_db_data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-
-  product-redis:
-    image: redis:7
-    container_name: product-redis
-    networks:
-      - microservices-network
-
-
   # ========================
   # 📦 INVENTORY SERVICE
   # ========================
@@ -85,6 +439,7 @@ services:
     build: ./inventory-service
     container_name: inventory-service
     command: sh /entrypoint.sh
+    deploy: *gpu_config
     volumes:
       - ./inventory-service:/app
     ports:
@@ -99,23 +454,6 @@ services:
     networks:
       - microservices-network
 
-  inventory-db:
-    image: postgres:15
-    container_name: inventory-db
-    env_file:
-      - ./inventory-service/.env
-    volumes:
-      - inventory_db_data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-
-  inventory-redis:
-    image: redis:7
-    container_name: inventory-redis
-    networks:
-      - microservices-network
-
-
   # ========================
   # 🛒 CART SERVICE
   # ========================
@@ -123,6 +461,7 @@ services:
     build: ./cart-service
     container_name: cart-service
     command: sh /entrypoint.sh
+    deploy: *gpu_config
     volumes:
       - ./cart-service:/app
     ports:
@@ -137,23 +476,6 @@ services:
     networks:
       - microservices-network
 
-  cart-db:
-    image: postgres:15
-    container_name: cart-db
-    env_file:
-      - ./cart-service/.env
-    volumes:
-      - cart_db_data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-
-  cart-redis:
-    image: redis:7
-    container_name: cart-redis
-    networks:
-      - microservices-network
-
-
   # ========================
   # 📦 ORDER SERVICE
   # ========================
@@ -163,6 +485,7 @@ services:
     command: >
       sh -c "sh /entrypoint.sh && 
              python /app/app/manage.py runserver 0.0.0.0:8000"
+    deploy: *gpu_config
     volumes:
       - ./order-service:/app
     ports:
@@ -177,27 +500,12 @@ services:
     networks:
       - microservices-network
 
-  order-db:
-    image: postgres:15
-    container_name: order-db
-    env_file:
-      - ./order-service/.env
-    volumes:
-      - order_db_data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-
-  order-redis:
-    image: redis:7
-    container_name: order-redis
-    networks:
-      - microservices-network
-
   order-worker:
     build: ./order-service
     command: >
       sh -c "sh /entrypoint.sh && 
              python /app/manage.py run_consumers"
+    deploy: *gpu_config
     env_file:
       - ./order-service/.env
     depends_on:
@@ -208,7 +516,6 @@ services:
     networks:
       - microservices-network  
 
-
   # ========================
   # 💳 PAYMENT SERVICE
   # ========================
@@ -216,6 +523,7 @@ services:
     build: ./payment-service
     container_name: payment-service
     command: sh /entrypoint.sh python /app/app/manage.py runserver 0.0.0.0:8000
+    deploy: *gpu_config
     volumes:
       - ./payment-service:/app
     ports:
@@ -230,27 +538,12 @@ services:
     networks:
       - microservices-network
 
-  payment-db:
-    image: postgres:15
-    container_name: payment-db
-    env_file:
-      - ./payment-service/.env
-    volumes:
-      - payment_db_data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-
-  payment-redis:
-    image: redis:7
-    container_name: payment-redis
-    networks:
-      - microservices-network
-
   payment-worker:
     build: ./payment-service
     command: >
       sh -c "sh /entrypoint.sh && 
              python /app/manage.py run_consumers"
+    deploy: *gpu_config
     env_file:
       - ./payment-service/.env
     depends_on:
@@ -261,45 +554,106 @@ services:
     networks:
       - microservices-network 
 
+  # Databases & Infrastructure (No GPU needed)
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    env_file: 
+      - ./auth-service/.env
+    volumes: 
+      - auth_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
 
+  auth-redis:
+    image: redis:7
+    container_name: auth-redis
+    networks: 
+      - microservices-network
 
+  product-db:
+    image: postgres:15
+    container_name: product-db
+    env_file: 
+      - ./product-service/.env
+    volumes: 
+      - product_db_data:/var/lib/postgresql/data
+    networks: 
+      - microservices-network
+
+  product-redis:
+    image: redis:7
+    networks: 
+      - microservices-network
+
+  inventory-db:
+    image: postgres:15
+    networks: 
+      - microservices-network
+
+  inventory-redis:
+    image: redis:7
+    networks: 
+      - microservices-network
+
+  cart-db:
+    image: postgres:15
+    networks: 
+      - microservices-network
+
+  cart-redis:
+    image: redis:7
+    networks: 
+      - microservices-network
+
+  order-db:
+    image: postgres:15
+    networks: 
+      - microservices-network
+
+  order-redis:
+    image: redis:7
+    networks: 
+      - microservices-network
+
+  payment-db:
+    image: postgres:15
+    networks: 
+      - microservices-network
+
+  payment-redis:
+    image: redis:7
+    networks: 
+      - microservices-network
 
   rabbitmq:
     image: rabbitmq:3-management
     hostname: rabbitmq
     restart: always
-
     ports:
-      - "5672:5672"     # AMQP (app communication)
-      - "15672:15672"   # Management UI
-
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
-
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-
     networks:
       - microservices-network
 
   api-gateway:
-      build: ./api-gateway
-      ports:
-        - "8000:80"
-      depends_on:
-        - auth-service
-        - product-service
-        - inventory-service
-        - cart-service
-        - order-service
-        - payment-service
-        - promtail
-        - loki
-        - grafana
-        # - prometheus
-      networks:
-        - microservices-network
+    build: ./api-gateway
+    ports:
+      - "8000:80"
+    depends_on:
+      - auth-service
+      - product-service
+      - inventory-service
+      - cart-service
+      - order-service
+      - payment-service
+    networks:
+      - microservices-network
     
   loki:
     image: grafana/loki:2.9.0
@@ -313,7 +667,6 @@ services:
     networks:
         - microservices-network
 
-
   promtail:
     image: grafana/promtail:2.9.0
     container_name: promtail
@@ -325,18 +678,6 @@ services:
     networks:
         - microservices-network
   
-  # will add after the all service
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   container_name: prometheus
-  #   volumes:
-  #     - ./prometheus:/etc/prometheus
-  #   ports:
-  #     - "9090:9090"
-  #   networks:
-  #       - microservices-network
-
-
   grafana:
     image: grafana/grafana:10.2.0
     container_name: grafana
@@ -346,27 +687,19 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
         - microservices-network
-  
 
   jaeger:
     image: jaegertracing/all-in-one
     ports:
-      - "16686:16686"   # UI
+      - "16686:16686"
       - "4317:4317"  
     networks:
         - microservices-network
 
-# ========================
-# 🌐 NETWORK
-# ========================
 networks:
   microservices-network:
     driver: bridge
 
-
-# ========================
-# 💾 VOLUMES
-# ========================
 volumes:
   auth_db_data:
   product_db_data:
