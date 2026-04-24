@@ -47,7 +47,7 @@ class InternalServiceAuthentication(BaseAuthentication):
         except jwt.InvalidTokenError:
             raise AuthenticationFailed("Invalid token")
 
-        # ensure token is internal service token
+                # ensure token is internal service token
         if payload.get("role") != "internal_service":
             raise AuthenticationFailed("Not an internal service token")
 

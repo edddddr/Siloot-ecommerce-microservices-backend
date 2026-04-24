@@ -40,7 +40,7 @@ class CartView(APIView):
     
     def get(self, request):
 
-        user_id = request.user
+        user_id = request.user.id
         cached_cart = None
 
         try:
@@ -114,7 +114,7 @@ class AddItemView(APIView):
 
     def post(self, request):
         
-        user_id = request.user
+        user_id = request.user.id
 
 
 
@@ -199,7 +199,7 @@ class UpdateItemView(APIView):
 
     def patch(self, request, item_id):
 
-        user_id = request.user
+        user_id = request.user.id
 
         serializer = UpdateItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -265,11 +265,11 @@ class RemoveItemView(APIView):
 
     def delete(self, request, item_id):
 
-        user_id = request.user
+        user_id = request.user.id
 
         logger.info("Cart item deletion requested", extra={
             "user_id": user_id,
-            "cart_item_id": item_id
+            "cart_item_id": item_id 
         })
 
         try:

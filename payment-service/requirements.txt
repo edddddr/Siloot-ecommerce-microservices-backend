@@ -13,7 +13,6 @@ drf-spectacular
 requests
 pika
 
-
 python-json-logger
 django-prometheus
 opentelemetry-api

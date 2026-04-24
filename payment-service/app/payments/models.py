@@ -34,6 +34,9 @@ class Payment(models.Model):
         choices=PaymentStatus.choices,
         default=PaymentStatus.PENDING
     )
+    
+    checkout_url = models.TextField(null=True)
+    tx_ref = models.CharField(max_length=255, unique=True)
 
     created_at = models.DateTimeField(
         auto_now_add=True
