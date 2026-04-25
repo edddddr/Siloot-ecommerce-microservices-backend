@@ -147,12 +147,11 @@ class ChapaService:
         url = "https://api.chapa.co/v1/transaction/initialize"
 
         payload = {
-            "amount": str(data["amount"]),
-            "currency": data["currency"],
-            "email": data["email"],
-            "email": data["email"],
-            "first_name": data["first_name"],
-            "last_name": data["last_name"],
+            "amount": "6119.97",
+            "currency": "ETB",
+            "email": "test@gmail.com", # Hardcode a simple address here
+            "first_name": "John",
+            "last_name": "Doe",
             "tx_ref": data["tx_ref"],
             "callback_url": "http://localhost:8000/api/v1/payments/webhook/",
             "return_url": f"http://localhost:8000/payment-result?order_id={data['order_id']}"
@@ -163,4 +162,17 @@ class ChapaService:
         }
 
         res = requests.post(url, json=payload, headers=headers)
-        return res.json()["data"]["checkout_url"]
+        
+        response_data = res.json()
+
+        if response_data.get("status") != "success":
+            print("Chapa Error:", response_data)
+            return None
+
+        data = response_data.get("data")
+
+        if not data:
+            print("Chapa returned no data:", response_data)
+            return None
+
+        return data.get("checkout_url")

@@ -18,6 +18,6 @@ urlpatterns = [
     # ),
 
     path("payments/<uuid:order_id>/", PaymentDetailView.as_view()),
-    path("api/v1/payments/webhook/", chapa_webhooks.chapa_webhook, name='chapa_webhook')
+    path("payments/webhook/", chapa_webhooks.chapa_webhook, name='chapa_webhook')
 
 ]   

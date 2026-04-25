@@ -388,7 +388,9 @@ services:
   auth-service:
     build: ./auth-service
     container_name: auth-service
-    command: sh /entrypoint.sh
+    command: >
+      sh -c "sh /entrypoint.sh && 
+             python /app/app/manage.py runserver 0.0.0.0:8000"
     deploy: &gpu_config
       resources:
         reservations:
@@ -409,6 +411,22 @@ services:
       - auth-redis
     networks:
       - microservices-network
+
+  # auth-worker:
+  #   build: ./auth-service
+  #   command: >
+  #     sh -c "sh /entrypoint.sh && 
+  #            python /app/manage.py publish_existing_user"
+  #   deploy: *gpu_config
+  #   env_file:
+  #     - ./auth-service/.env
+  #   depends_on: 
+  #     - auth-db
+  #     - rabbitmq
+  #   environment:
+  #     DJANGO_SETTINGS_MODULE: config.settings.dev   
+  #   networks:
+  #     - microservices-network  
 
   # ========================
   # 📦 PRODUCT SERVICE
@@ -500,21 +518,37 @@ services:
     networks:
       - microservices-network
 
-  order-worker:
+  order-payment-worker:
     build: ./order-service
     command: >
-      sh -c "sh /entrypoint.sh && 
-             python /app/manage.py run_consumers"
-    deploy: *gpu_config
+      sh -c "sh /entrypoint.sh &&
+            python /app/manage.py consume_payments"
     env_file:
       - ./order-service/.env
     depends_on:
       - order-db
       - rabbitmq
     environment:
-      DJANGO_SETTINGS_MODULE: config.settings.dev   
+      DJANGO_SETTINGS_MODULE: config.settings.dev
     networks:
-      - microservices-network  
+      - microservices-network
+
+
+
+  order-user-worker:
+    build: ./order-service
+    command: >
+      sh -c "sh /entrypoint.sh &&
+            python /app/manage.py consume_users"
+    env_file:
+      - ./order-service/.env
+    depends_on:
+      - order-db
+      - rabbitmq
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    networks:
+      - microservices-network
 
   # ========================
   # 💳 PAYMENT SERVICE
