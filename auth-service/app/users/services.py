@@ -1,5 +1,20 @@
-from common.messaging.publisher import EventPublisher
+import logging
+from users.common.messaging.rabbitmq import EventPublisher
 from users.common.events.user_event import build_user_event
+
+
+logger = logging.getLogger(__name__)
+
+
+def log_login_attempt(email, success):
+    logger.info(
+        "Login attempt",
+        extra={
+            "email": email,
+            "success": success,
+        },
+    )
+
 
 
 def publish_user_created(user):

@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from .services import log_login_attempt
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, UserRole
-from users.services import publish_user_created
+from users.services import publish_user_created, log_login_attempt
 
 
 class RegisterSerializer(serializers.ModelSerializer):

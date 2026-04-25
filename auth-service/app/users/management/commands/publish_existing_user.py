@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from users.models import User
 from users.common.events.user_event import build_user_event
-from common.messaging.publisher import EventPublisher
+from users.common.messaging.rabbitmq import EventPublisher
 
 
 class Command(BaseCommand):
@@ -9,6 +9,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         publisher = EventPublisher()
+
+        print("The users are publishing")
 
         users = User.objects.all()
 
@@ -21,6 +23,6 @@ class Command(BaseCommand):
                 f"Published user.created for {user.id}"
             ))
 
-        publisher.close()
+        # publisher.close()
 
         self.stdout.write(self.style.SUCCESS("Done publishing all users"))
