@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Category, Product, ProductImage
-from .serializers import CategorySerializer, ProductSerializer
+from .serializers import CategorySerializer, ExploreProductSerializer, ProductSerializer
 from .pagination import ProductCursorPagination, CategoryCursorPagination
 import logging
 
@@ -25,6 +25,8 @@ from .services.cache import (
     cache_product_detail,
 )
 from .services.cache import invalidate_product_cache
+from .services.explore_services import get_explore_products
+
 
 from drf_spectacular.utils import extend_schema, inline_serializer
 
@@ -234,8 +236,17 @@ class ProductImageUploadView(APIView):
 
 
 
-def get_explore_products():
-    new = Product.objects.order_by('-created_at')[:4]
-    random = Product.objects.order_by('?')[:2]
+class ExploreProductsAPIView(APIView):
+    permission_classes = [AllowAny]
 
-    return list(new) + list(random)
+    def get(self, request):
+        limit = int(request.GET.get("limit", 12))
+
+        products = get_explore_products(limit=limit)
+
+        serializer = ExploreProductSerializer(products, many=True)
+
+        return Response({
+            "count": len(products),
+            "results": serializer.data
+        })

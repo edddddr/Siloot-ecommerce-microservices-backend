@@ -432,7 +432,7 @@ services:
   # 📦 PRODUCT SERVICE
   # ========================
   product-service:
-    build: ./product-service
+    build: ./product-service  
     container_name: product-service
     command: sh /entrypoint.sh
     deploy: *gpu_config

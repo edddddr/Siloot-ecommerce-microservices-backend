@@ -58,3 +58,19 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at"]
 
 
+class ExploreProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "price",
+            "slug",
+            "images",
+            "description",
+            "price",
+            "currency",
+            "is_active",
+        ]
