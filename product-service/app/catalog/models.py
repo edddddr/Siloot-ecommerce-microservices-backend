@@ -83,7 +83,7 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE,
     )
 
-    image_url = models.URLField()
+    image = models.ImageField(upload_to="products/")
     alt_text = models.CharField(max_length=255, blank=True)
 
     is_primary = models.BooleanField(default=False)

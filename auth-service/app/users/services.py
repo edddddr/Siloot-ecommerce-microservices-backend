@@ -23,7 +23,7 @@ def publish_user_created(user):
     event = build_user_event(user, "user.created")
 
     publisher.publish("user.created", event)
-    publisher.close()
+    # publisher.close()
 
 
 def publish_user_updated(user):

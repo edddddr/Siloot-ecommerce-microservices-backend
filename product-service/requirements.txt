@@ -12,6 +12,11 @@ coverage
 drf-spectacular 
 pika
 
+# image
+boto3 
+django-storages
+Pillow
+
 python-json-logger
 
 

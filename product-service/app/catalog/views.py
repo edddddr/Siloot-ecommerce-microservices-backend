@@ -1,7 +1,7 @@
 from rest_framework import viewsets
-from .models import Category, Product
+from .models import Category, Product, ProductImage
 from .serializers import CategorySerializer, ProductSerializer
-from .pagination import ProductCursorPagination
+from .pagination import ProductCursorPagination, CategoryCursorPagination
 import logging
 
 # Permission and Authentication
@@ -13,6 +13,7 @@ import uuid
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status, serializers
+from rest_framework.views import APIView
 
 # caching
 from django.core.cache import cache
@@ -33,7 +34,7 @@ logger = logging.getLogger(__name__)
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = ProductCursorPagination
+    pagination_class = CategoryCursorPagination 
 
     def get_object(self):
 
@@ -209,3 +210,32 @@ class ProductViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated(), IsAdminUserRole()]
     
 
+
+
+class ProductImageUploadView(APIView):
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        image = request.FILES.get("image")
+
+        if not image:
+            return Response({"error": "Image required"}, status=400)
+
+        product = Product.objects.get(id=product_id)
+
+        product_image = ProductImage.objects.create(
+            product=product,
+            image=image
+        )
+
+        return Response({
+            "id": str(product_image.id),
+            "image_url": product_image.image.url
+        }, status=status.HTTP_201_CREATED)
+
+
+
+def get_explore_products():
+    new = Product.objects.order_by('-created_at')[:4]
+    random = Product.objects.order_by('?')[:2]
+
+    return list(new) + list(random)
