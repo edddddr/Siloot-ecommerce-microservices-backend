@@ -1,213 +1,127 @@
-# 🛒 E-Commerce Microservices Architecture
+# 🛒 Production-Grade E-Commerce Microservices System
 
-Production-grade, learning-focused microservices architecture built with Django and Kubernetes.
-
----
-
-## 📌 Project Overview
-
-This project implements a **production-style e-commerce system** using a microservices architecture.
-
-The goal is:
-
-* Learn real-world distributed system design
-* Apply Saga orchestration pattern
-* Implement service-to-service authentication
-* Use Kubernetes-native infrastructure
-* Follow production-level best practices
-
-This is not just a demo — it is designed to reflect real backend architecture standards.
+A scalable, event-driven e-commerce backend built using Django, Docker, Kubernetes, and RabbitMQ, implementing the Saga pattern for distributed transactions.
 
 ---
 
-# 🏗 Architecture Overview
+## 🚀 Overview
 
-## Core Services
+This project demonstrates a **real-world microservices architecture** for an e-commerce platform.
 
-* **Auth Service** – User authentication & JWT issuing
-* **Product Service** – Product catalog management
-* **Inventory Service** – Stock management & reservations
-* **Cart Service** – User cart management (Redis-backed)
-* **Order Service** – Saga orchestrator & order lifecycle
-* **Payment Service** – Payment processing & event publishing
+The system is designed to be:
 
----
+- Scalable
+- Fault-tolerant
+- Observable
+- Production-ready
 
-## 🧠 Architectural Principles
-
-* ✅ Database per service
-* ✅ No shared databases
-* ✅ Orchestrator Saga pattern
-* ✅ Event-driven communication
-* ✅ Internal service JWT authentication
-* ✅ Kubernetes-native deployment
-* ✅ Observability-ready
+It simulates how large-scale systems handle **checkout, payments, and inventory consistency** across multiple services.
 
 ---
 
-# 🔄 Order Flow (Saga – Orchestrator Pattern)
+## 🏗️ Architecture
 
-1. Client creates order
-2. Order Service reserves inventory
-3. Order Service initiates payment
-4. Payment Service publishes event
-5. Order Service handles event:
+![Architecture Diagram](./architecture/diagram.png)
 
-   * Confirm inventory + mark PAID
-   * OR release inventory + mark CANCELLED
+### Core Components:
 
-All cross-service state changes are event-driven and idempotent.
-
----
-
-# 🔐 Authentication Model
-
-### External Authentication
-
-* User JWT issued by Auth Service
-* Validated by all services
-
-### Internal Service Authentication
-
-* Short-lived Service JWT
-* Signed using private key
-* Validated per service
-* Only internal ClusterIP services allowed
+- API Gateway (NGINX)
+- Microservices:
+  - Auth Service
+  - Product Service
+  - Inventory Service
+  - Cart Service
+  - Order Service
+  - Payment Service
+- Message Broker (RabbitMQ)
+- Databases (PostgreSQL per service)
+- Cache (Redis)
+- Observability Stack (Prometheus, Grafana, Jaeger)
 
 ---
 
-# 📡 Communication Patterns
+## ⚙️ Tech Stack
 
-### Synchronous (REST)
-
-* Cart → Product
-* Order → Inventory
-* Order → Payment
-
-### Asynchronous (RabbitMQ)
-
-* Payment → Order
-* Order → Future consumers (Notification, Analytics)
-
----
-
-# 🗄 Data Strategy
-
-Each service owns its own PostgreSQL database:
-
-* auth_db
-* product_db
-* inventory_db
-* order_db
-* payment_db
-
-Redis is used for:
-
-* Cart storage
-* Caching
-
-No cross-database joins.
+- **Backend:** Django + Django REST Framework  
+- **Messaging:** RabbitMQ  
+- **API Gateway:** NGINX  
+- **Database:** PostgreSQL  
+- **Cache:** Redis  
+- **Containerization:** Docker  
+- **Orchestration:** Kubernetes  
+- **Monitoring:** Prometheus + Grafana  
+- **Tracing:** Jaeger  
 
 ---
 
-# 🚀 Technology Stack
+## 🔑 Key Features
 
-| Layer            | Technology   |
-| ---------------- | ------------ |
-| Backend          | Django + DRF |
-| Database         | PostgreSQL   |
-| Cache            | Redis        |
-| Message Broker   | RabbitMQ     |
-| Containerization | Docker       |
-| Orchestration    | Kubernetes   |
-| Metrics          | Prometheus   |
-| Dashboard        | Grafana      |
-| Logging          | Loki         |
-| Tracing          | Jaeger       |
+- Microservices architecture with independent services
+- Event-driven communication using RabbitMQ
+- Saga pattern for distributed transactions
+- Secure service-to-service authentication (JWT, RS256)
+- API Gateway with rate limiting and security headers
+- Redis caching for high-performance reads
+- Distributed tracing and centralized logging
+- Kubernetes deployment with autoscaling support
+- Retry mechanism and Dead Letter Queue (DLQ) for reliability
 
 ---
 
-# 📦 Infrastructure Design
+## 🔄 System Flow (Checkout)
 
-* Kubernetes namespaces (dev / staging / prod)
-* ClusterIP services (internal only)
-* NGINX Ingress as API gateway
-* StatefulSets for:
+### ✅ Success Flow
 
-  * PostgreSQL
-  * Redis
-  * RabbitMQ
-* ConfigMaps & Secrets for configuration management
-* Resource limits + HPA support
+User → Cart Service → Order Service  
+→ Inventory Service (reserve stock)  
+→ Payment Service  
+→ Order updated to **PAID**
 
 ---
 
-# 📊 Observability
+### ❌ Failure Flow
 
-Each service:
-
-* Exposes `/metrics`
-* Uses Correlation-ID header
-* Sends structured logs to stdout
-* Supports distributed tracing
+User → Order Service  
+→ Payment fails  
+→ Order marked **FAILED**  
+→ Inventory reservation released  
 
 ---
 
-# 🧪 Testing Strategy
+## 📡 Event-Driven Architecture
 
-* Unit tests (business logic)
-* Integration tests (DB + APIs)
-* Contract tests (event schemas)
-* End-to-end order flow tests
+The system uses RabbitMQ for asynchronous communication:
 
----
+- `order.created`
+- `payment.completed`
+- `payment.failed`
 
-# 📁 Repository Structure (Planned)
+This ensures:
 
-```
-ecommerce/
-│
-├── auth-service/
-├── product-service/
-├── inventory-service/
-├── cart-service/
-├── order-service/
-├── payment-service/
-│
-├── k8s/
-├── docker/
-├── helm/
-└── docs/
-```
+- Loose coupling between services  
+- Improved scalability  
+- Fault tolerance  
 
 ---
 
-# 🎯 Learning Goals
+## 📊 Observability
 
-This project focuses on mastering:
+The system includes full observability:
 
-* Microservice boundaries
-* Saga orchestration
-* Event-driven design
-* Service authentication
-* Distributed failure handling
-* Kubernetes-native architecture
-* Observability in distributed systems
+- Metrics via Prometheus  
+- Dashboards via Grafana  
+- Distributed tracing via Jaeger  
+- Centralized logging via Loki  
 
----
+This allows monitoring of:
 
-# 🔮 Future Extensions
-
-* Notification Service
-* Analytics Service
-* API rate limiting
-* Circuit breaker implementation
-* Service mesh integration
-* Polyglot microservices
+- Request latency  
+- Error rates  
+- Service dependencies  
 
 ---
 
-# 📜 License
+## 🧪 Running Locally
 
-Educational / Learning project.
-
+```bash
+docker compose up --build
