@@ -21,7 +21,6 @@ It simulates how large-scale systems handle **checkout, payments, and inventory 
 
 ## 🏗️ Architecture
 
-![Architecture Diagram](./architecture/diagram.png)
 
 ### Core Components:
 
